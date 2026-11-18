@@ -22,11 +22,13 @@ class SkillPackageTests(unittest.TestCase):
         self.root = Path(self.temp.name) / "source"
         self.root.mkdir()
         self.write(MANIFEST, '{\n  "name": "mnemic",\n  "version": "1.2.3"\n}\n')
-        self.write(SKILL + "/SKILL.md", "---\nname: mql\ndescription: Author MQL.\n---\n\n[Queries](references/queries.md#basic-queries)\n")
-        self.write(REFERENCE + "/README.md", "# Reference\n\n- [Queries](queries.md)\n")
-        self.write(REFERENCE + "/queries.md", "# Queries\n\n## Basic queries\n\n[Details](other.md#details) and [configuration](https://mnemic.io/docs/configuration/).\n")
-        self.write(REFERENCE + "/other.md", "# Details\n\nUse bracketed identifiers.\n")
-        # What a submodule checkout keeps beside the reference.
+        self.write(SKILL + "/SKILL.md", "---\nname: mql\ndescription: Author MQL.\n---\n\n[Queries](references/MqlReference/queries.md#basic-queries)\n")
+        self.write(REFERENCE + "/README.md", "# Documentation\n\n- [Configuration](configuration.md)\n- [MQL reference](MqlReference/README.md)\n")
+        self.write(REFERENCE + "/configuration.md", "# Configuration\n\n## Standalone server environment\n")
+        self.write(REFERENCE + "/MqlReference/README.md", "# MQL reference\n\n- [Queries](queries.md)\n")
+        self.write(REFERENCE + "/MqlReference/queries.md", "# Queries\n\n## Basic queries\n\n[Details](other.md#details), [the environment](../configuration.md#standalone-server-environment) and [the site](https://mnemic.io/docs/).\n")
+        self.write(REFERENCE + "/MqlReference/other.md", "# Details\n\nUse bracketed identifiers.\n")
+        # What a submodule checkout keeps beside the manual.
         self.write(REFERENCE + "/.git", "gitdir: ../../../../.git/modules/plugins/mnemic/skills/mql/references\n")
         self.write(REFERENCE + "/.github/notes.md", "# Repository notes\n")
         self.commit = "a" * 40
@@ -40,16 +42,19 @@ class SkillPackageTests(unittest.TestCase):
     def package(self, name="output"):
         return self.module.build(self.root, self.commit, self.reference_commit, Path(self.temp.name) / name)
 
-    def test_self_contained_deterministic_archive_of_the_pinned_reference(self):
+    def test_self_contained_deterministic_archive_of_the_pinned_manual(self):
         archive = self.package()
         self.assertEqual("Mnemic.Mql.Skill-1.2.3.zip", archive.name)
         self.assertEqual(archive.read_bytes(), self.package("second").read_bytes())
         with zipfile.ZipFile(archive) as zipped:
             names = zipped.namelist()
-            self.assertEqual(sorted(["mql/SKILL.md", "mql/package.json", "mql/references/README.md", "mql/references/other.md", "mql/references/queries.md"]), sorted(names))
-            text = zipped.read("mql/references/queries.md").decode()
+            self.assertEqual(sorted(["mql/SKILL.md", "mql/package.json", "mql/references/README.md", "mql/references/configuration.md",
+                                     "mql/references/MqlReference/README.md", "mql/references/MqlReference/other.md",
+                                     "mql/references/MqlReference/queries.md"]), sorted(names))
+            text = zipped.read("mql/references/MqlReference/queries.md").decode()
             self.assertIn("(other.md#details)", text)
-            self.assertIn("(https://mnemic.io/docs/configuration/)", text)
+            self.assertIn("(../configuration.md#standalone-server-environment)", text)
+            self.assertIn("(https://mnemic.io/docs/)", text)
             manifest = json.loads(zipped.read("mql/package.json"))
             self.assertEqual(self.commit, manifest["commit"])
             self.assertEqual(self.reference_commit, manifest["referenceCommit"])
@@ -74,21 +79,21 @@ class SkillPackageTests(unittest.TestCase):
             self.package()
 
     def test_missing_local_file_is_rejected(self):
-        self.write(REFERENCE + "/other.md", "# Details\n[Missing](missing.md)\n")
+        self.write(REFERENCE + "/MqlReference/other.md", "# Details\n[Missing](missing.md)\n")
         with self.assertRaisesRegex(ValueError, "missing"):
             self.package()
 
     def test_missing_heading_is_rejected(self):
-        self.write(REFERENCE + "/other.md", "# Changed heading\n")
+        self.write(REFERENCE + "/MqlReference/other.md", "# Changed heading\n")
         with self.assertRaisesRegex(ValueError, "details"):
             self.package()
 
     def test_link_leaving_the_package_is_rejected(self):
-        self.write(REFERENCE + "/other.md", "# Details\n\n[Configuration](../configuration.md)\n")
+        self.write(REFERENCE + "/MqlReference/other.md", "# Details\n\n[Design](../../Decisions/query.md)\n")
         with self.assertRaisesRegex(ValueError, "missing bundled target"):
             self.package()
 
-    def test_uninitialized_reference_is_rejected(self):
+    def test_uninitialized_manual_is_rejected(self):
         shutil.rmtree(self.root / REFERENCE)
         (self.root / REFERENCE).mkdir()
         with self.assertRaisesRegex(ValueError, "initialize the submodule"):
@@ -96,7 +101,7 @@ class SkillPackageTests(unittest.TestCase):
 
     def test_stale_source_is_rejected(self):
         archive = self.package()
-        self.write(REFERENCE + "/other.md", "# Details\nChanged content.\n")
+        self.write(REFERENCE + "/MqlReference/other.md", "# Details\nChanged content.\n")
         with self.assertRaises(ValueError):
             self.module.verify(archive, self.root, self.commit, self.reference_commit)
 

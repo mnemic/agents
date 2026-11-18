@@ -1,4 +1,4 @@
-"""Build and verify the portable MQL skill from the plugin's skill and the reference it pins."""
+"""Build and verify the portable MQL skill from the plugin's skill and the manual it pins."""
 import argparse
 import hashlib
 import json
@@ -10,7 +10,7 @@ from urllib.parse import unquote, urlsplit
 import zipfile
 
 REPOSITORY_URL = "https://github.com/mnemic/agents"
-REFERENCE_URL = "https://github.com/mnemic/mql"
+REFERENCE_URL = "https://github.com/mnemic/docs"
 PLUGIN = Path("plugins/mnemic")
 MANIFEST = PLUGIN / ".claude-plugin" / "plugin.json"
 SKILL = PLUGIN / "skills" / "mql"
@@ -96,17 +96,17 @@ def plugin_version(root):
 
 
 def reference_sources(root):
-    """The reference's files by package name. It is a submodule checkout, so the dot entries git keeps in it are not reference."""
+    """The manual's files by package name. It is a submodule checkout, so the dot entries git keeps in it are not manual."""
     reference_root = root / REFERENCE
-    if not (reference_root / "README.md").is_file():
-        raise ValueError(f"{REFERENCE.as_posix()} holds no reference; initialize the submodule with git submodule update --init")
+    if not (reference_root / "MqlReference" / "README.md").is_file():
+        raise ValueError(f"{REFERENCE.as_posix()} holds no manual; initialize the submodule with git submodule update --init")
     sources = {}
     for path in sorted(reference_root.rglob("*")):
         relative = path.relative_to(reference_root)
         if any(part.startswith(".") for part in relative.parts):
             continue
         if path.is_symlink():
-            raise ValueError(f"Unexpected symlink in the reference: {path}")
+            raise ValueError(f"Unexpected symlink in the manual: {path}")
         if path.is_file():
             sources["mql/references/" + relative.as_posix()] = path
     return sources

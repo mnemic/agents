@@ -37,13 +37,13 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-      - name: The reference is pinned to a commit on its main branch
+      - name: The manual is pinned to a commit on its main branch
         shell: bash
         run: |
           reference=plugins/mnemic/skills/mql/references
           git -C "$reference" fetch --quiet origin main
           if ! git -C "$reference" merge-base --is-ancestor HEAD FETCH_HEAD; then
-            echo "::error::$reference pins $(git -C "$reference" rev-parse HEAD), which is not on mnemic/mql main"
+            echo "::error::$reference pins $(git -C "$reference" rev-parse HEAD), which is not on mnemic/docs main"
             exit 1
           fi
       - name: A changed plugin carries a new version

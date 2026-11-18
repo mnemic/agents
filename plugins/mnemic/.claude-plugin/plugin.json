@@ -1,6 +1,6 @@
 {
   "name": "mnemic",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Write, check and explain MQL queries, schema changes and migrations for Mnemic databases.",
   "author": {
     "name": "Mnemic",
