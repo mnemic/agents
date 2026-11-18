@@ -4,7 +4,7 @@ Plugins that teach AI coding agents to work with [Mnemic](https://mnemic.io) dat
 
 ## The mnemic plugin
 
-The `mql` skill writes, checks and explains MQL queries, schema changes and migrations. It carries the [MQL reference](https://github.com/mnemic/mql) of the Mnemic release it was published with, so an agent reads the language's rules instead of guessing them from SQL.
+The `mql` skill writes, checks and explains MQL queries, schema changes and migrations. It carries the [Mnemic manual](https://github.com/mnemic/docs) of the release it was published with, the MQL reference among it, so an agent reads the language's rules instead of guessing them from SQL.
 
 ### Claude Code
 
@@ -17,7 +17,7 @@ The `mql` skill writes, checks and explains MQL queries, schema changes and migr
 
 ### Other agents
 
-Codex and Cursor read skills from `~/.agents/skills/`, and Codex, Cursor and VS Code read a project's `.agents/skills/`. Clone this repository with the reference and copy the skill there:
+Codex and Cursor read skills from `~/.agents/skills/`, and Codex, Cursor and VS Code read a project's `.agents/skills/`. Clone this repository with the manual and copy the skill there:
 
 ```shell
 git clone --recurse-submodules https://github.com/mnemic/agents.git
@@ -28,4 +28,4 @@ rm ~/.agents/skills/mql/references/.git
 
 ## Versions
 
-The plugin's major version is the Mnemic major version it serves: 1.x is for Mnemic 1.x. Its reference describes the Mnemic release it was published with; on a connected server, the skill reads the server's version from `[Mnemic].[Version]` and has the server check a statement with `VALIDATE` before relying on it.
+The plugin's major version is the Mnemic major version it serves: 1.x is for Mnemic 1.x. Its manual describes the Mnemic release it was published with; on a connected server, the skill reads the server's version from `[Mnemic].[Version]` and has the server check a statement with `VALIDATE` before relying on it.
