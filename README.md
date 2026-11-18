@@ -28,4 +28,4 @@ rm ~/.agents/skills/mql/references/.git
 
 ## Versions
 
-The plugin's major version is the Mnemic major version it serves: 1.x is for Mnemic 1.x. A minor release of Mnemic adds to MQL without changing what it already accepts, so the newest 1.x skill also serves an older 1.x server, and the skill has the server check a statement with `VALIDATE` before relying on it.
+The plugin's major version is the Mnemic major version it serves: 1.x is for Mnemic 1.x. Its reference describes the Mnemic release it was published with; on a connected server, the skill reads the server's version from `[Mnemic].[Version]` and has the server check a statement with `VALIDATE` before relying on it.
