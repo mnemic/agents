@@ -1,0 +1,3 @@
+[submodule "plugins/mnemic/skills/mql/references"]
+	path = plugins/mnemic/skills/mql/references
+	url = https://github.com/mnemic/mql.git

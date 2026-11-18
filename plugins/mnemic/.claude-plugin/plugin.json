@@ -1,0 +1,13 @@
+{
+  "name": "mnemic",
+  "version": "1.0.0",
+  "description": "Write, check and explain MQL queries, schema changes and migrations for Mnemic databases.",
+  "author": {
+    "name": "Mnemic",
+    "email": "support@mnemic.io",
+    "url": "https://mnemic.io"
+  },
+  "homepage": "https://mnemic.io",
+  "repository": "https://github.com/mnemic/agents",
+  "keywords": ["mnemic", "mql", "database"]
+}

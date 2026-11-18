@@ -1,0 +1,64 @@
+name: Qualification
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  skill-package:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Test and build the portable skill
+        shell: bash
+        run: |
+          python -m unittest discover -s Scripts -p test_mql_skill_package.py
+          bash Scripts/package-mql-skill.sh --output-directory "$RUNNER_TEMP/mql-skill"
+
+  pins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          fetch-depth: 0
+      - name: The reference is pinned to a commit on its main branch
+        shell: bash
+        run: |
+          reference=plugins/mnemic/skills/mql/references
+          git -C "$reference" fetch --quiet origin main
+          if ! git -C "$reference" merge-base --is-ancestor HEAD FETCH_HEAD; then
+            echo "::error::$reference pins $(git -C "$reference" rev-parse HEAD), which is not on mnemic/mql main"
+            exit 1
+          fi
+      - name: A changed plugin carries a new version
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          base="origin/${{ github.base_ref }}"
+          manifest=plugins/mnemic/.claude-plugin/plugin.json
+          if git diff --quiet "$base"...HEAD -- plugins; then
+            exit 0
+          fi
+          version() { python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])'; }
+          old=$(git show "$base:$manifest" | version)
+          new=$(version < "$manifest")
+          if [ "$old" = "$new" ]; then
+            echo "::error::plugins/ changed but $manifest still holds version $new; an installed plugin receives no change without a new version"
+            exit 1
+          fi

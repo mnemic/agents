@@ -1,0 +1,20 @@
+{
+  "name": "mnemic",
+  "owner": {
+    "name": "Mnemic",
+    "email": "support@mnemic.io",
+    "url": "https://mnemic.io"
+  },
+  "metadata": {
+    "description": "Plugins that teach AI agents to work with Mnemic databases."
+  },
+  "plugins": [
+    {
+      "name": "mnemic",
+      "source": "./plugins/mnemic",
+      "description": "Write, check and explain MQL queries, schema changes and migrations for Mnemic databases.",
+      "category": "database",
+      "homepage": "https://mnemic.io"
+    }
+  ]
+}
